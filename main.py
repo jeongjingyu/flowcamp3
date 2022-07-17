@@ -10,28 +10,15 @@ class Game():
         self.display = pygame.Surface((self.DISPLAY_W,self.DISPLAY_H))
         self.window = pygame.display.set_mode(((self.DISPLAY_W,self.DISPLAY_H)))
         self.font_name = '8-BIT WONDER.TTF'
-        #self.font_name = pygame.font.get_default_font()
         self.BLACK, self.WHITE = (0, 0, 0), (255, 255, 255)
         self.main_menu = MainMenu(self)
-        #self.options = OptionsMenu(self)
-        #self.credits = CreditsMenu(self)
-        self.curr_menu = self.main_menu
-
-    def game_loop(self):
-        while self.playing:
-            self.check_events()
-            if self.START_KEY:
-                self.playing= False
-            self.display.fill(self.BLACK)
-            self.window.blit(self.display, (0,0))
-            pygame.display.update()
-            self.reset_keys()
 
     def check_events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running, self.playing = False, False
-                self.curr_menu.run_display = False
+                self.main_menu.run_display = False
+                pygame.quit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
                     self.START_KEY = True
@@ -54,6 +41,4 @@ class Game():
         
 g = Game()
 
-while g.running:
-    g.curr_menu.display_menu()
-    g.game_loop()
+g.main_menu.display_menu()

@@ -4,6 +4,7 @@ import numpy as np
 import random 
 import matplotlib.pyplot as plt
 import pickle
+import pygame
 #
 # =======================================================================
 #   DQN Algorith Paramaters 
@@ -48,3 +49,12 @@ def Play(n):
 		[RightScore, LeftScore, PlayerYPos, BallXPos, BallYPos, BallXDirection, BallYDirection]= TheGame.PlayNextMoveP(BestAction)
 		NextState = CaptureNormalisedState(PlayerYPos, BallXPos, BallYPos, BallXDirection, BallYDirection)
 		GameState = NextState
+  
+		for event in pygame.event.get():
+			if event.type == pygame.QUIT:
+				pygame.quit()
+	
+		if RightScore == 11:
+			return 1
+		elif LeftScore == 11:
+			return 0
