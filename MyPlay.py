@@ -48,13 +48,3 @@ def Play(n):
 		[RightScore, LeftScore, PlayerYPos, BallXPos, BallYPos, BallXDirection, BallYDirection]= TheGame.PlayNextMoveP(BestAction)
 		NextState = CaptureNormalisedState(PlayerYPos, BallXPos, BallYPos, BallXDirection, BallYDirection)
 		GameState = NextState
-	
-	# =======================================================================
-def main():
-    #
-	# Main Method Just Play our Experiment
-	Play(10000)
-	
-	# =======================================================================
-if __name__ == "__main__":
-    main()
