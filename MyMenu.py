@@ -3,7 +3,8 @@ import MyPlay
 
 EASYMODE = 3000
 NORMALMODE = 7000
-HARDMODE = 15000
+HARDMODE = 20000
+GHOSTMODE = 15000
 
 class Menu():
     def __init__(self, game):
@@ -37,7 +38,7 @@ class MainMenu(Menu):
             self.game.check_events()
             self.check_input()
             self.game.display.fill(self.game.BLACK)
-            self.game.draw_text('Main Menu', 40, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 -50)
+            self.game.draw_text('ALPHA PONG', 40, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 -50)
             self.game.draw_text("EASY", 30, self.easyx, self.easyy)
             self.game.draw_text("NORMAL", 30, self.normalx, self.normaly)
             self.game.draw_text("HARD", 30, self.hardx, self.hardy)
@@ -68,20 +69,111 @@ class MainMenu(Menu):
 
     def check_input(self):
         self.move_cursor()
-        if self.game.START_KEY:
+        if self.game.GHOST:
+            self.game.reset_keys()
+            pygame.event.clear()
+            MainMenuG(self.game).display_menu()
+            self.run_display = False
+        elif self.game.START_KEY:
             self.run_display = False
             if self.state == 'EASY':
-                self.win = MyPlay.Play(EASYMODE)
+                self.win = MyPlay.Play(EASYMODE, False)
             elif self.state == 'NORMAL':
-                self.win = MyPlay.Play(NORMALMODE)
+                self.win = MyPlay.Play(NORMALMODE, False)
             elif self.state == 'HARD':
-                self.win = MyPlay.Play(HARDMODE)
+                self.win = MyPlay.Play(HARDMODE, False)
             self.game.reset_keys()
             pygame.event.clear()
             if self.win:
-                WinMenu(self.game, self.state).display_menu()
+                if(self.state == 'HARD'):
+                    WinMenu(self.game, self.state).display_menu_hard()
+                else:
+                    WinMenu(self.game, self.state).display_menu()
             else:
                 LoseMenu(self.game, self.state).display_menu()
+
+class MainMenuG(Menu):
+    def __init__(self, game):
+        Menu.__init__(self, game)
+        self.state = "EASY"
+        self.easyx, self.easyy = self.mid_w, self.mid_h + 30
+        self.normalx, self.normaly = self.mid_w, self.mid_h + 60
+        self.hardx, self.hardy = self.mid_w, self.mid_h + 90
+        self.ghostx, self.ghosty = self.mid_w, self.mid_h + 120
+        self.cursor_rect.midtop = (self.easyx - 120, self.easyy)
+        
+    def display_menu(self):
+        self.run_display = True
+        while self.run_display:
+            self.game.check_events()
+            self.check_input()
+            self.game.display.fill(self.game.BLACK)
+            self.game.draw_text('ALPHA PONG', 40, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 -50)
+            self.game.draw_text("EASY", 30, self.easyx, self.easyy)
+            self.game.draw_text("NORMAL", 30, self.normalx, self.normaly)
+            self.game.draw_text("HARD", 30, self.hardx, self.hardy)
+            self.game.draw_text("GHOST", 30, self.ghostx, self.ghosty)
+            self.draw_cursor()
+            self.blit_screen()
+            
+    def move_cursor(self):
+        if self.game.DOWN_KEY:
+            if self.state == 'EASY':
+                self.cursor_rect.midtop = (self.normalx - 120, self.normaly)
+                self.state = 'NORMAL'
+            elif self.state == 'NORMAL':
+                self.cursor_rect.midtop = (self.hardx - 120, self.hardy)
+                self.state = 'HARD'
+            elif self.state == 'HARD':
+                self.cursor_rect.midtop = (self.ghostx - 120, self.ghosty)
+                self.state = 'GHOST'
+            elif self.state == 'GHOST':
+                self.cursor_rect.midtop = (self.easyx - 120, self.easyy)
+                self.state = 'EASY'
+        elif self.game.UP_KEY:
+            if self.state == 'EASY':
+                self.cursor_rect.midtop = (self.ghostx - 120, self.ghosty)
+                self.state = 'GHOST'
+            elif self.state == 'GHOST':
+                self.cursor_rect.midtop = (self.hardx - 120, self.hardy)
+                self.state = 'HARD'
+            elif self.state == 'HARD':
+                self.cursor_rect.midtop = (self.normalx - 120, self.normaly)
+                self.state = 'NORMAL'
+            elif self.state == 'NORMAL':
+                self.cursor_rect.midtop = (self.easyx - 120, self.easyy)
+                self.state = 'EASY'
+                
+    def check_input(self):
+        self.move_cursor()
+        if self.game.START_KEY:
+            self.run_display = False
+            self.game.reset_keys()
+            pygame.event.clear()
+            if self.state == 'EASY':
+                self.win = MyPlay.Play(EASYMODE, False)
+                if self.win:
+                    WinMenu(self.game, self.state).display_menu()
+                else:
+                    LoseMenu(self.game, self.state).display_menu()
+            elif self.state == 'NORMAL':
+                self.win = MyPlay.Play(NORMALMODE, False)
+                if self.win:
+                    WinMenu(self.game, self.state).display_menu()
+                else:
+                    LoseMenu(self.game, self.state).display_menu()
+            elif self.state == 'HARD':
+                self.win = MyPlay.Play(HARDMODE, False)
+                if self.win:
+                    WinMenu(self.game, self.state).display_menu_hard()
+                else:
+                    LoseMenu(self.game, self.state).display_menu()
+            elif self.state == 'GHOST':
+                self.win = MyPlay.Play(GHOSTMODE, True)
+                if self.win:
+                    WinMenu(self.game, self.state).display_menu_ghost()
+                else:
+                    LoseMenu(self.game, self.state).display_menu()
 
 class LoseMenu(Menu):
     def __init__(self, game, state):
@@ -118,15 +210,20 @@ class LoseMenu(Menu):
         if self.game.START_KEY:
             if self.state == 'RESTART':
                 if self.state_before == 'EASY':
-                    self.win = MyPlay.Play(EASYMODE)
+                    self.win = MyPlay.Play(EASYMODE, False)
                 elif self.state_before == 'NORMAL':
-                    self.win = MyPlay.Play(NORMALMODE)
+                    self.win = MyPlay.Play(NORMALMODE, False)
                 elif self.state_before == 'HARD':
-                    self.win = MyPlay.Play(HARDMODE)
+                    self.win = MyPlay.Play(HARDMODE, False)
+                elif self.state_before == 'GHOST':
+                    self.win = MyPlay.Play(GHOSTMODE, True)
                 self.game.reset_keys()
                 pygame.event.clear()
                 if self.win:
-                    WinMenu(self.game, self.state_before).display_menu()
+                    if(self.state_before == 'HARD'):
+                        WinMenu(self.game, self.state_before).display_menu_hard()
+                    else:
+                        WinMenu(self.game, self.state_before).display_menu()
                 else:
                     LoseMenu(self.game, self.state_before).display_menu()
             elif self.state == 'GO TO MENU':
@@ -154,6 +251,32 @@ class WinMenu(Menu):
             self.game.draw_text("GO TO MENU", 30, self.gotomenux, self.gotomenuy)
             self.draw_cursor()
             self.blit_screen()
+    
+    def display_menu_hard(self):
+        self.run_display = True
+        while self.run_display:
+            self.game.check_events()
+            self.check_input2()
+            self.game.display.fill(self.game.BLACK)
+            self.game.draw_text('YOU WIN', 40, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 50)
+            self.game.draw_text("FIND HIDDEN LEVEL", 30, self.nextlevelx, self.nextlevely - 50)
+            self.game.draw_text("GO TO MENU", 30, self.gotomenux, self.gotomenuy)
+            self.cursor_rect.midtop = (self.gotomenux - 160, self.gotomenuy)
+            self.draw_cursor()
+            self.blit_screen()
+    
+    def display_menu_ghost(self):
+        self.run_display = True
+        while self.run_display:
+            self.game.check_events()
+            self.check_input2()
+            self.game.display.fill(self.game.BLACK)
+            self.game.draw_text('CONGRATULATIONS ON', 40, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 50)
+            self.game.draw_text("WASTING YOUR TIME", 40, self.nextlevelx, self.nextlevely - 40)
+            self.game.draw_text("GO TO MENU", 30, self.gotomenux, self.gotomenuy)
+            self.cursor_rect.midtop = (self.gotomenux - 160, self.gotomenuy)
+            self.draw_cursor()
+            self.blit_screen()
 
     def move_cursor(self):
         if (self.game.DOWN_KEY or self.game.UP_KEY):
@@ -170,7 +293,7 @@ class WinMenu(Menu):
             if self.state == 'NEXT LEVEL':
                 self.game.playing = True
                 if self.state_before == 'EASY':
-                    self.win = MyPlay.Play(NORMALMODE)
+                    self.win = MyPlay.Play(NORMALMODE, False)
                     self.game.reset_keys()
                     pygame.event.clear()
                     if self.win:
@@ -178,17 +301,22 @@ class WinMenu(Menu):
                     else:
                         LoseMenu(self.game, 'NORMAL').display_menu()
                 elif self.state_before == 'NORMAL':
-                    self.win = MyPlay.Play(HARDMODE)
+                    self.win = MyPlay.Play(HARDMODE, False)
                     self.game.reset_keys()
                     pygame.event.clear()
                     if self.win:
-                        WinMenu(self.game, 'HARD').display_menu()
+                        WinMenu(self.game, 'HARD').display_menu_hard()
                     else:
                         LoseMenu(self.game, 'HARD').display_menu()
-                elif self.state_before == 'HARD':
-                    MainMenu(self.game).display_menu()
             elif self.state == 'GO TO MENU':
                 self.game.reset_keys()
                 pygame.event.clear()
                 MainMenu(self.game).display_menu()
+            self.run_display = False
+            
+    def check_input2(self):
+        if self.game.START_KEY:
+            self.game.reset_keys()
+            pygame.event.clear()
+            MainMenu(self.game).display_menu()
             self.run_display = False

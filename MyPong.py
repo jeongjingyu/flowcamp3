@@ -23,11 +23,16 @@ FPS = 60	#  Experiment Performance Seems rather sensitive to Computer performanc
 WINDOW_WIDTH = 800
 WINDOW_HEIGHT = 500
 
+#Ball initialization pattern
+PATTERN = [3,8,5,1,4,2,9,7,6]
+
 #size of our paddle
 PADDLE_WIDTH = 10
 PADDLE_HEIGHT = 60
 #distance from the edge of the window
 PADDLE_BUFFER = 15
+
+BORDER_WIDTH = 4
 
 #size of our ball
 BALL_RADIUS = 5
@@ -35,7 +40,7 @@ BALL_RADIUS = 5
 #speeds of our paddle and ball
 PADDLE_SPEED = 3
 BALL_X_SPEED = 3
-BALL_Y_SPEED = 2
+BALL_Y_SPEED = 3
 
 #RGB colors for our paddle and ball
 WHITE = (255, 255, 255)
@@ -46,14 +51,19 @@ YELLOW = (255,255,0)
 #initialize our screen using width and height vars
 screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 
+EASYMODE = 3000
+NORMALMODE = 7000
+HARDMODE = 20000
+GHOSTMODE = 15000
+
 # ===============================================================
 #Paddle 1 is our learning agent/us
 #paddle 2 is the oponent  AI
 
 #draw our ball
-def drawBall(ballXPos, ballYPos):
+def drawBall(ballXPos, ballYPos, ballColor):
     #draw it
-    pygame.draw.circle(screen, WHITE, (ballXPos, ballYPos), BALL_RADIUS)
+    pygame.draw.circle(screen, ballColor, (ballXPos, ballYPos), BALL_RADIUS)
 
 
 def drawPaddle1(paddle1YPos):
@@ -89,7 +99,9 @@ def updateBall(paddle1YPos, paddle2YPos, ballXPos, ballYPos, ballXDirection, bal
 		ballXDirection = 1
 		#reset ball position
 		ballXPos = WINDOW_WIDTH/2
-		ballYPos = random.randint(0, WINDOW_HEIGHT)
+		ballYPos = WINDOW_HEIGHT//10 * PATTERN[0]
+		PATTERN.append(PATTERN[0])
+		PATTERN.pop(0)
 		# Player Missed the Ball, so negative Score Reward
 		score = -10.0
 		return [score, ballXPos, ballYPos, ballXDirection, ballYDirection]
@@ -104,7 +116,9 @@ def updateBall(paddle1YPos, paddle2YPos, ballXPos, ballYPos, ballXDirection, bal
 		ballXDirection = -1
   		#reset ball position
 		ballXPos = WINDOW_WIDTH/2
-		ballYPos = random.randint(0, WINDOW_HEIGHT)
+		ballYPos = WINDOW_HEIGHT//10 * PATTERN[0]
+		PATTERN.append(PATTERN[0])
+		PATTERN.pop(0)
 		return [score, ballXPos, ballYPos, ballXDirection, ballYDirection]
 
 	#if it hits the top move down
@@ -136,7 +150,9 @@ def updateBallP(paddle1YPos, paddle2YPos, ballXPos, ballYPos, ballXDirection, ba
 		right_score = 1
 		#reset ball position
 		ballXPos = WINDOW_WIDTH/2
-		ballYPos = random.randint(0, WINDOW_HEIGHT)
+		ballYPos = WINDOW_HEIGHT//10 * PATTERN[0]
+		PATTERN.append(PATTERN[0])
+		PATTERN.pop(0)
 		return [right_score, left_score, ballXPos, ballYPos, ballXDirection, ballYDirection]
 
 	#check if hits the AI Player
@@ -150,7 +166,9 @@ def updateBallP(paddle1YPos, paddle2YPos, ballXPos, ballYPos, ballXDirection, ba
 		left_score = 1
   		#reset ball position
 		ballXPos = WINDOW_WIDTH/2
-		ballYPos = random.randint(0, WINDOW_HEIGHT)
+		ballYPos = WINDOW_HEIGHT//10 * PATTERN[0]
+		PATTERN.append(PATTERN[0])
+		PATTERN.pop(0)
 		return [right_score, left_score, ballXPos, ballYPos, ballXDirection, ballYDirection]
 
 	#if it hits the top move down
@@ -184,12 +202,12 @@ def updatePaddle1(action, paddle1YPos, dft):
 
 
 def updatePaddle2(paddle2YPos, ballYPos,dft):
-	dft = 7.5
+	dft = 15
     #move down if ball lower than Opponent Paddle
-	if (paddle2YPos + PADDLE_HEIGHT/2 < ballYPos):
+	if (paddle2YPos < ballYPos):
 		paddle2YPos = paddle2YPos + PADDLE_SPEED*dft
 	#move up if ball is higher thn Openient Paddle
-	if (paddle2YPos + PADDLE_HEIGHT/2 > ballYPos):
+	if (paddle2YPos > ballYPos):
 		paddle2YPos = paddle2YPos - PADDLE_SPEED*dft
 	#don't let it hit top
 	if (paddle2YPos < 0):
@@ -219,7 +237,7 @@ class PongGame:
 	
 		# Initialise pygame
 		pygame.init()
-		pygame.display.set_caption('Pong DQN Experiment')
+		pygame.display.set_caption('ALPHA PONG')
 		#random number for initial direction of ball
 		num = random.randint(0,9)
 
@@ -240,7 +258,7 @@ class PongGame:
 		self.RScore = 0
 		self.LScore = 0
 
-		self.font = pygame.font.SysFont("calibri",20)
+		self.font = pygame.font.Font('8-BIT WONDER.TTF', 20)
 		#randomly decide where the ball will move
 		if(0 < num < 3):
 			self.ballXDirection = 1
@@ -254,10 +272,13 @@ class PongGame:
 		if (8 <= num < 10):
 			self.ballXDirection = -1
 			self.ballYDirection = -1
-		#new random number
-		num = random.randint(0,9)
 		#where it will start, y part
-		self.ballYPos = num*(WINDOW_HEIGHT - BALL_RADIUS*2)/9 + BALL_RADIUS
+		self.ballYPos = WINDOW_HEIGHT/2
+  
+		self.easymode = EASYMODE
+		self.normalmode = NORMALMODE
+		self.hardmode = HARDMODE
+		self.ghostmode = GHOSTMODE
 
     # Initialise Game
 	def InitialDisplay(self):
@@ -267,17 +288,17 @@ class PongGame:
 		screen.fill(BLACK)
   
 		#draw border line
-		for i in range(10, WINDOW_HEIGHT, WINDOW_HEIGHT//20):
-			if i % 2 == 1:
+		for i in range(20):
+			if i % 2 == 1 or i == 2:
 				continue
-			pygame.draw.rect(screen, WHITE, (WINDOW_WIDTH//2 - 2, i, 4, WINDOW_HEIGHT//20))
+			pygame.draw.rect(screen, WHITE, (WINDOW_WIDTH//2-BORDER_WIDTH//2, (WINDOW_HEIGHT*i)//20, BORDER_WIDTH, WINDOW_HEIGHT//20))
 		pygame.display.update()
   
 		#draw our paddles
 		drawPaddle1(self.paddle1YPos)
 		drawPaddle2(self.paddle2YPos)
 		#draw our ball
-		drawBall(self.ballXPos, self.ballYPos)
+		drawBall(self.ballXPos, self.ballYPos, WHITE)
 		#
 		#updates the window
 		pygame.display.flip()
@@ -293,10 +314,10 @@ class PongGame:
 		screen.fill(BLACK)
   
 		#draw border line
-		for i in range(10, WINDOW_HEIGHT, WINDOW_HEIGHT//20):
-			if i % 2 == 1:
+		for i in range(20):
+			if i % 2 == 1 or i == 2:
 				continue
-			pygame.draw.rect(screen, WHITE, (WINDOW_WIDTH//2 - 2, i, 4, WINDOW_HEIGHT//20))
+			pygame.draw.rect(screen, WHITE, (WINDOW_WIDTH//2-BORDER_WIDTH//2, (WINDOW_HEIGHT*i)//20, BORDER_WIDTH, WINDOW_HEIGHT//20))
 		pygame.display.update()
   
 		#update our paddle
@@ -329,20 +350,31 @@ class PongGame:
 		return [score, self.paddle1YPos, self.ballXPos, self.ballYPos, self.ballXDirection, self.ballYDirection]
 
 	#  Game Update Inlcuding Display
-	def PlayNextMoveP(self, action):
+	def PlayNextMoveP(self, action, n, ballColor):
 		# Calculate DeltaFrameTime
 		DeltaFrameTime = self.clock.tick(FPS)
 	
 		pygame.event.pump()
 		score = 0
+		ballColorReset = 0
 		screen.fill(BLACK)
   
 		#draw border line
-		for i in range(10, WINDOW_HEIGHT, WINDOW_HEIGHT//20):
-			if i % 2 == 1:
+		for i in range(20):
+			if i % 2 == 1 or i == 2:
 				continue
-			pygame.draw.rect(screen, WHITE, (WINDOW_WIDTH//2 - 2, i, 4, WINDOW_HEIGHT//20))
+			pygame.draw.rect(screen, WHITE, (WINDOW_WIDTH//2-BORDER_WIDTH//2, (WINDOW_HEIGHT*i)//20, BORDER_WIDTH, WINDOW_HEIGHT//20))
 		pygame.display.update()
+  
+		if n == self.easymode:
+			ModeDisplay = self.font.render("EASY", 1, WHITE)
+		elif n == self.normalmode:
+			ModeDisplay = self.font.render("NORMAL", 1, WHITE)
+		elif n == self.hardmode:
+			ModeDisplay = self.font.render("HARD", 1, WHITE)
+		elif n == self.ghostmode:
+			ModeDisplay = self.font.render("GHOST", 1, WHITE)
+		screen.blit(ModeDisplay, (WINDOW_WIDTH//2 - ModeDisplay.get_width()//2, 50))
 	
 		#update our paddle
 		self.paddle1YPos = updatePaddle1(action, self.paddle1YPos, DeltaFrameTime)
@@ -353,13 +385,16 @@ class PongGame:
 		#update our vars by updating ball position
 		[right_score, left_score, self.ballXPos, self.ballYPos, self.ballXDirection, self.ballYDirection] = updateBallP(self.paddle1YPos, self.paddle2YPos, self.ballXPos, self.ballYPos, self.ballXDirection, self.ballYDirection, DeltaFrameTime)
 		#draw the ball
-		drawBall(self.ballXPos, self.ballYPos)
+		drawBall(self.ballXPos, self.ballYPos, (ballColor, ballColor, ballColor))
   
 		# Update Game Play Score
 		if (right_score):
 			self.RScore += 1
 		elif (left_score):
 			self.LScore += 1
+   
+		if (right_score or left_score):
+			ballColorReset = 1
 
 		LeftScoreDisplay = self.font.render(f"{self.LScore}", 1, WHITE)
 		screen.blit(LeftScoreDisplay, (WINDOW_WIDTH//4 - LeftScoreDisplay.get_width()//2, 50))
@@ -370,7 +405,7 @@ class PongGame:
 		pygame.display.flip()
 
 		#return the score and the Player Paddle, Ball Position adn Direction 
-		return [self.RScore, self.LScore, self.paddle1YPos, self.ballXPos, self.ballYPos, self.ballXDirection, self.ballYDirection]
+		return [self.RScore, self.LScore, self.paddle1YPos, self.ballXPos, self.ballYPos, self.ballXDirection, self.ballYDirection, ballColorReset]
 
 	# Return the Curent Game State
 	def ReturnCurrentState(self):

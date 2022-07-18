@@ -24,7 +24,7 @@ def CaptureNormalisedState(PlayerYPos, BallXPos, BallYPos, BallXDirection, BallY
 	return gstate
 # =====================================================================
 # Main Experiment Method 
-def Play(n):
+def Play(n, isGhost):
     
 	with open("test_exp_replay_"+str(n), "rb") as fp:
 		exp_replay = pickle.load(fp)
@@ -39,6 +39,7 @@ def Play(n):
 	
 	# Initialise NextAction  Assume Action is scalar:  0:stay, 1:Up, 2:Down
 	BestAction = 0
+	BallColor = 255
 	
 	# Initialise current Game State ~ Believe insigificant: (PlayerYPos, BallXPos, BallYPos, BallXDirection, BallYDirection)
 	GameState = CaptureNormalisedState(200.0, 200.0, 200.0, 1.0, 1.0)
@@ -46,7 +47,12 @@ def Play(n):
 	for gtime in range(TOTAL_GAMETIME):
      
 		BestAction = TheAgent.ActP(GameState)
-		[RightScore, LeftScore, PlayerYPos, BallXPos, BallYPos, BallXDirection, BallYDirection]= TheGame.PlayNextMoveP(BestAction)
+		[RightScore, LeftScore, PlayerYPos, BallXPos, BallYPos, BallXDirection, BallYDirection, BallColorReset]= TheGame.PlayNextMoveP(BestAction, n, BallColor)
+		if isGhost:
+			if BallColorReset:
+				BallColor = 255
+			elif BallColor >= 3:
+				BallColor -= 3
 		NextState = CaptureNormalisedState(PlayerYPos, BallXPos, BallYPos, BallXDirection, BallYDirection)
 		GameState = NextState
   
