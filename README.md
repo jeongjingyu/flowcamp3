@@ -7,9 +7,7 @@
 
 https://jin-gyu.itch.io/alpha-pong
 
-OR
-
-ALPHAPONG 폴더 -> main.exe 파일 실행
+압축 풀기 -> ALPHAPONG 폴더 -> main.exe 파일 실행
 
 
 ## Contributor
