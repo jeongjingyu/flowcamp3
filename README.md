@@ -25,13 +25,13 @@ https://jin-gyu.itch.io/alpha-pong
 <img src="https://user-images.githubusercontent.com/58676453/179738909-03c75f0d-fab3-470e-96b8-c90937ef77aa.png" width="300"/>
 
 
-'ALL RESPECT FOR ATARI AND PONG...'
+'ALL RESPECT FOR ATARI AND DEEPMIND...'
 
-[퐁](https://namu.wiki/w/%ED%90%81)(Pong)은 1972년 Atari에서 출시한 아케이드 게임으로, 상업적으로 성공한 첫 비디오 게임이자 모든 비디오 게임의 어머니로 알려져 있다.
+[퐁](https://namu.wiki/w/%ED%90%81)(Pong)은 1972년 Atari에서 출시한 아케이드 게임으로, 상업적으로 성공한 첫 비디오 게임이자 모든 비디오 게임의 어머니로 알려져 있으며, 단순한 2인용 탁구 게임이지만 여전히 재미있고 중독성이 있다.
 
-단순한 2인용 탁구 게임이지만, 여전히 재미있고 중독성이 있다.
+ALPHAGO는 2015년 구글의 Deepmind에서 출시한 인공지능 바둑 프로그램으로, 인공지능을 세상에 가장 크게 알린 프로그램이며, 강화학습을 통해 승리 가능성을 높이는 다음 수를 예측한다.
 
-ALPHAPONG은 출시 50년이 지난 기존 Pong 게임에 강화학습 기술을 적용, agent의 학습량에 따라 서로 다른 레벨의 AI를 설정하여 1인 플레이어가 AI를 상대하게 한다.
+ALPHAGO의 방식을 Pong에 적용한 ALPHAPONG은 출시 50년이 지난 기존 Pong 게임에 강화학습 기술을 적용, agent의 학습량에 따라 서로 다른 레벨의 AI를 설정하여 1인 플레이어가 AI를 상대하게 한다.
 
 거기에 흩뿌려져있는 이스터에그는 덤!
 
