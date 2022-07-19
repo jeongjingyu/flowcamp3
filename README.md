@@ -24,6 +24,9 @@ ALPHAPONG 폴더 -> main.exe 파일 실행
 
 ## Concept
 
+<img src="https://user-images.githubusercontent.com/58676453/179738909-03c75f0d-fab3-470e-96b8-c90937ef77aa.png" width="300"/>
+
+
 'ALL RESPECT FOR ATARI AND PONG...'
 
 퐁(Pong)은 1972년 Atari에서 출시한 아케이드 게임으로, 상업적으로 성공한 첫 비디오 게임이자 모든 비디오 게임의 어머니로 알려져 있다.
